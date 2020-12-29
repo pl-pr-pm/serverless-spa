@@ -59,3 +59,20 @@ Resources:
            Properties:
               Path: /images
               Method: get
+
+  getImageById:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getImageById/
+      Handler: get-image-by-id.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+         Variables:
+            TABLE_NAME: photos
+            BUCKET_NAME: share-image-app-svl-photos
+      Events:
+         ApiEvent:
+           Type: Api
+           Properties:
+              Path: /images{id}
+              Method: get
