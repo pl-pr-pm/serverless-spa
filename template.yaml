@@ -74,5 +74,5 @@ Resources:
          ApiEvent:
            Type: Api
            Properties:
-              Path: /images{id}
+              Path: /images/{id}
               Method: get
