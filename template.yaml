@@ -76,3 +76,20 @@ Resources:
            Properties:
               Path: /images/{id}
               Method: get
+
+  deleteImageById:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: deleteImageById/
+      Handler: delete-image-by-id.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+         Variables:
+            TABLE_NAME: photos
+            BUCKET_NAME: share-image-app-svl-photos
+      Events:
+         ApiEvent:
+           Type: Api
+           Properties:
+              Path: /images/{id}
+              Method: delete
