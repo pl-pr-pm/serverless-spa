@@ -19,7 +19,6 @@ class DecimalEncoder(json.JSONEncoder):
                 return float(obj)
             else:
                 return int(obj)
-        logger.info("FrontOfReturn")
         return super(DecimalEncoder, self).default(obj)
 
 """
