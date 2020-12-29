@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import datetime
-from botocore.extentions import ClientError
+from botocore.exceptions import ClientError
 
 """Loggerをセット"""
 logger = logging.getLogger()
@@ -20,7 +20,7 @@ dynamodb = boto3.resource('dynamodb', region_name = 'ap-northeast-1')
 table = dynamodb.Table(os.getenv('TABLE_NAME'))
 
 def generate_id():
-    return str(uuid.uuid4)
+    return str(uuid.uuid4())
 
 def get_timestamp():
     """
@@ -36,17 +36,18 @@ def get_presigned_url(bucket_name, key, type):
         ClientMethod = 'put_object',
         Params = {'Bucket' : bucket_name, 'Key' : key, 'ContentType' : type},
         ExpiresIn = 3600,
-        HttppMethod = 'PUT'
+        HttpMethod = 'PUT'
     )
     return url
     
 def lambda_handler(event, context):
+    logger.info(event)
     body = json.loads(event['body'])
     ext = body['type'].split('/')[1]
     photp_id = generate_id()
     url = get_presigned_url(os.getenv('BUCKET_NAME'), photp_id + "." + ext, body['type'])
     item = {
-        'photp_id':photp_id,
+        'photo_id':photp_id,
         'timestamp':get_timestamp(),
         'status':'Waiting',
         'type':body['type'],

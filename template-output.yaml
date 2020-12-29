@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Specification template describing your functon.
+Resources:
+  postImages:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://share-image-app-svl-sam/bf9bdc3c6dc00f2b63e0dafb3c1063bc
+      Handler: post-images.lambda_handler
+      Runtime: python3.7
+      Timeout: 3
+      MemorySize: 128
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+        Variables:
+          TABLE_NAME: photos
+          BUCKET_NAME: share-image-app-svl-photos
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /images
+            Method: post

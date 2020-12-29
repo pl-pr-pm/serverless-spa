@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'An AWS Serverless Specification template describing your functon.'
+
+Globals:
+  Function:
+     Timeout: 15
+     MemorySize: 128
+     Runtime: python3.7
+
+Resources:
+  postImages:
+     Type: AWS::Serverless::Function
+     Properties:
+        CodeUri: postImages/
+        Handler: post-images.lambda_handler
+        Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+        Environment:
+           Variables:
+              TABLE_NAME: photos
+              BUCKET_NAME: share-image-app-svl-photos
+        Events:
+           ApiEvent:
+             Type: Api
+             Properties:
+                Path: /images
+                Method: post
+    
+  updateImages:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: updateImages/
+      Handler: update-images.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+         Variables:
+            TABLE_NAME: photos
+            BUCKET_NAME: share-image-app-svl-photos
+      Events:
+         ApiEvent:
+           Type: Api
+           Properties:
+              Path: /images
+              Method: PUT
