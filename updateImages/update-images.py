@@ -13,9 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 class DecimalEncoder(json.JSONEncoder):
-    logger.info("Inclass DecimalEncoder")
     def default(self, obj):
-        logger.info("Inmethod default")
         if isinstance(obj, decimal.Decimal):
             if obj % 1 > 0:
                 return float(obj)
@@ -34,7 +32,7 @@ dynamodb = boto3.resource('dynamodb', region_name = 'ap-northeast-1')
 table = dynamodb.Table(os.getenv('TABLE_NAME'))
 
 def validate(request_body):
-    return request_body.keys() >= { "photo_id" , "timkestamp" , "status" }
+    return request_body.keys() >= { "photo_id" , "timestamp" , "status" }
     
 def lambda_handler(event, context):
     logger.info(event)
