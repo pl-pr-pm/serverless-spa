@@ -10,32 +10,201 @@ Resources:
   postImages:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://share-image-app-svl-sam/f97d55a05734604a60f0b468296a80b0
+      CodeUri: s3://share-image-app-svl-sam/60789e7cfe91d235863a6fd48a646fbb
       Handler: post-images.lambda_handler
       Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
       Environment:
         Variables:
           TABLE_NAME: photos
           BUCKET_NAME: share-image-app-svl-photos
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /images
-            Method: post
   updateImages:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://share-image-app-svl-sam/8e93e1de9e91e2205c2691a218c9dabf
+      CodeUri: s3://share-image-app-svl-sam/90be224b88c90407e35a569990a79cca
       Handler: update-images.lambda_handler
       Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
       Environment:
         Variables:
           TABLE_NAME: photos
           BUCKET_NAME: share-image-app-svl-photos
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /images
-            Method: PUT
+  getImages:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://share-image-app-svl-sam/bdd374d4f3ccf9fead3f71e7ab51ce3a
+      Handler: get-images.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+        Variables:
+          TABLE_NAME: photos
+          BUCKET_NAME: share-image-app-svl-photos
+  getImageById:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://share-image-app-svl-sam/9bfc2734346b3da2248e9588894c3449
+      Handler: get-image-by-id.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+        Variables:
+          TABLE_NAME: photos
+          BUCKET_NAME: share-image-app-svl-photos
+  deleteImageById:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://share-image-app-svl-sam/70e33009d6eb828b5ce9624cb32d7312
+      Handler: delete-image-by-id.lambda_handler
+      Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
+      Environment:
+        Variables:
+          TABLE_NAME: photos
+          BUCKET_NAME: share-image-app-svl-photos
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          version: '1.0'
+          title: serverless-app
+        schemes:
+        - https
+        paths:
+          /images:
+            get:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${getImages.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+            post:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${postImages.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+            put:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${updateImages.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              tags:
+              - CORS
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\n \"statusCode\" : 200\n}\n"
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''*'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}
+
+                        '
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+          /images/{id}:
+            get:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${getImageById.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+            delete:
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${deleteImageById.Arn}/invocations
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                type: aws_proxy
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              tags:
+              - CORS
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\n      \"statusCode\" : 200\n}\n"
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''GET,POST,PUT,DELETE'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}
+
+                        '
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+  getImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: getImages
+      Principal: apigateway.amazonaws.com
+  postImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: postImages
+      Principal: apigateway.amazonaws.com
+  updateImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: updateImages
+      Principal: apigateway.amazonaws.com
+  getImageByIdPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: getImageById
+      Principal: apigateway.amazonaws.com
+  deleteImageByIdPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: deleteImageById
+      Principal: apigateway.amazonaws.com

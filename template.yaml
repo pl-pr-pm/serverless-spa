@@ -19,12 +19,6 @@ Resources:
            Variables:
               TABLE_NAME: photos
               BUCKET_NAME: share-image-app-svl-photos
-        Events:
-           ApiEvent:
-             Type: Api
-             Properties:
-                Path: /images
-                Method: post
     
   updateImages:
     Type: AWS::Serverless::Function
@@ -36,12 +30,6 @@ Resources:
          Variables:
             TABLE_NAME: photos
             BUCKET_NAME: share-image-app-svl-photos
-      Events:
-         ApiEvent:
-           Type: Api
-           Properties:
-              Path: /images
-              Method: PUT
   
   getImages:
     Type: AWS::Serverless::Function
@@ -53,12 +41,6 @@ Resources:
          Variables:
             TABLE_NAME: photos
             BUCKET_NAME: share-image-app-svl-photos
-      Events:
-         ApiEvent:
-           Type: Api
-           Properties:
-              Path: /images
-              Method: get
 
   getImageById:
     Type: AWS::Serverless::Function
@@ -70,12 +52,6 @@ Resources:
          Variables:
             TABLE_NAME: photos
             BUCKET_NAME: share-image-app-svl-photos
-      Events:
-         ApiEvent:
-           Type: Api
-           Properties:
-              Path: /images/{id}
-              Method: get
 
   deleteImageById:
     Type: AWS::Serverless::Function
@@ -87,9 +63,159 @@ Resources:
          Variables:
             TABLE_NAME: photos
             BUCKET_NAME: share-image-app-svl-photos
-      Events:
-         ApiEvent:
-           Type: Api
-           Properties:
-              Path: /images/{id}
-              Method: delete
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+       StageName: Prod
+       DefinitionBody:
+          swagger: "2.0"
+          info:
+             version: "1.0"
+             title: "serverless-app"
+          schemes:
+          - "https"
+          paths:
+             /images:
+                get:
+                   responses: {}
+                   x-amazon-apigateway-integration:
+                      uri: !Sub arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${getImages.Arn}/invocations
+                      passthroughBehavior: "when_no_match"
+                      httpMethod: "POST"
+                      type: "aws_proxy"
+                post:
+                   responses: {}
+                   x-amazon-apigateway-integration:
+                      uri: !Sub arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${postImages.Arn}/invocations
+                      passthroughBehavior: "when_no_match"
+                      httpMethod: "POST"
+                      type: "aws_proxy"
+                put:
+                   responses: {}
+                   x-amazon-apigateway-integration:
+                      uri: !Sub arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${updateImages.Arn}/invocations
+                      passthroughBehavior: "when_no_match"
+                      httpMethod: "POST"
+                      type: "aws_proxy"
+                
+                options:
+                    consumes:
+                       - application/json
+                    produces:
+                       - application/json
+                    tags:
+                       - CORS
+                    x-amazon-apigateway-integration:
+                       type: mock
+                       requestTemplates:
+                           application/json: |
+                              {
+                               "statusCode" : 200
+                              }
+                       responses:
+                           "default":
+                              statusCode: "200"
+                              responseParameters:
+                                 method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+                                 method.response.header.Access-Control-Allow-Methods : "'*'"
+                                 method.response.header.Access-Control-Allow-Origin : "'*'"
+                              responseTemplates:
+                                 application/json: |
+                                    {}
+             
+                    responses:
+                        "200":
+                          headers:
+                             Access-Control-Allow-Headers:
+                                type: "string"
+                             Access-Control-Allow-Methods:
+                                type: "string"
+                             Access-Control-Allow-Origin:
+                                type: "string"
+             
+             /images/{id}:
+                get:
+                   responses: {}
+                   x-amazon-apigateway-integration:
+                      uri: !Sub arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${getImageById.Arn}/invocations
+                      passthroughBehavior: "when_no_match"
+                      httpMethod: "POST"
+                      type: "aws_proxy"
+                
+                delete:
+                   responses: {}
+                   x-amazon-apigateway-integration:
+                      uri: !Sub arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${deleteImageById.Arn}/invocations
+                      passthroughBehavior: "when_no_match"
+                      httpMethod: "POST"
+                      type: "aws_proxy"
+              
+                options:
+                    consumes:
+                        - application/json
+                    produces:
+                        - application/json
+                    tags:
+                        - CORS
+                    x-amazon-apigateway-integration:
+                        type: mock
+                        requestTemplates:
+                           application/json: |
+                              {
+                                    "statusCode" : 200
+                              }
+                        responses:
+                           "default":
+                              statusCode: "200"
+                              responseParameters:
+                                 method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+                                 method.response.header.Access-Control-Allow-Methods : "'GET,POST,PUT,DELETE'"
+                                 method.response.header.Access-Control-Allow-Origin : "'*'"
+                              responseTemplates:
+                                 application/json: |
+                                    {}
+                    responses:
+                         "200":
+                            headers:
+                              Access-Control-Allow-Headers:
+                                 type: "string"
+                              Access-Control-Allow-Methods:
+                                 type: "string"
+                              Access-Control-Allow-Origin:
+                                 type: "string"
+
+  getImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+       Action: lambda:InvokeFunction
+       FunctionName: !Ref getImages
+       Principal: apigateway.amazonaws.com
+       
+  postImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+       Action: lambda:InvokeFunction
+       FunctionName: !Ref postImages
+       Principal: apigateway.amazonaws.com
+
+  updateImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+       Action: lambda:InvokeFunction
+       FunctionName: !Ref updateImages
+       Principal: apigateway.amazonaws.com
+       
+  getImageByIdPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+       Action: lambda:InvokeFunction
+       FunctionName: !Ref getImageById
+       Principal: apigateway.amazonaws.com
+
+  deleteImageByIdPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+       Action: lambda:InvokeFunction
+       FunctionName: !Ref deleteImageById
+       Principal: apigateway.amazonaws.com
