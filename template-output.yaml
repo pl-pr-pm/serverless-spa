@@ -10,7 +10,7 @@ Resources:
   postImages:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://share-image-app-svl-sam/60789e7cfe91d235863a6fd48a646fbb
+      CodeUri: s3://share-image-app-svl-sam/e42a890b99b332297cf97550104b0c3a
       Handler: post-images.lambda_handler
       Role: arn:aws:iam::510310114113:role/lambda-dynamodb-access
       Environment:
@@ -110,7 +110,7 @@ Resources:
                     statusCode: '200'
                     responseParameters:
                       method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
-                      method.response.header.Access-Control-Allow-Methods: '''*'''
+                      method.response.header.Access-Control-Allow-Methods: '''GET,POST,PUT,DELETE'''
                       method.response.header.Access-Control-Allow-Origin: '''*'''
                     responseTemplates:
                       application/json: '{}

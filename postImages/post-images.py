@@ -31,6 +31,7 @@ def get_timestamp():
     return int(now.timestamp())
 
 def get_presigned_url(bucket_name, key, type):
+    logger.info(type)
     s3 = boto3.client('s3', region_name = 'ap-northeast-1')
     url = s3.generate_presigned_url(
         ClientMethod = 'put_object',
